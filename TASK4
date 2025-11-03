@@ -1,0 +1,410 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>SkillCraft To-Do App — Professional Edition</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    /* ======== Professional, modern styling ======== */
+    :root {
+      --bg: #f8fafc;
+      --panel: #ffffff;
+      --muted: #64748b;
+      --accent: #3b82f6;
+      --accent-hover: #2563eb;
+      --card: #f1f5f9;
+      --success: #10b981;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --glass: rgba(255, 255, 255, 0.8);
+      --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      --shadow-hover: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+      --radius: 12px;
+      --gap: 16px;
+      --max-width: 1200px;
+      --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: linear-gradient(135deg, var(--bg), #e2e8f0);
+      font-family: var(--font-family);
+      color: #1e293b;
+      line-height: 1.6;
+    }
+    .wrap {
+      width: 100%;
+      max-width: var(--max-width);
+      margin: 32px auto;
+      padding: 24px;
+    }
+    .app {
+      display: grid;
+      grid-template-columns: 350px 1fr;
+      gap: 24px;
+    }
+    @media (max-width: 1024px) { .app { grid-template-columns: 1fr; } .left { order: 2; } }
+
+    /* Header */
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+      padding: 20px;
+      background: var(--panel);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+    .brand { display: flex; align-items: center; gap: 16px; }
+    .logo {
+      width: 64px;
+      height: 64px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, var(--accent), #1d4ed8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      color: #ffffff;
+      font-size: 24px;
+    }
+    h1 { margin: 0; font-size: 24px; font-weight: 600; }
+    p.lead { margin: 0; color: var(--muted); font-size: 14px; }
+
+    /* Left: Lists + controls */
+    .left {
+      background: var(--panel);
+      padding: 20px;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .lists { display: flex; flex-direction: column; gap: 12px; }
+    .list-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      border-radius: 10px;
+      cursor: pointer;
+      border: 1px solid #e2e8f0;
+      transition: all 0.2s ease;
+      background: var(--card);
+    }
+    .list-item:hover { box-shadow: var(--shadow-hover); transform: translateY(-2px); }
+    .list-item.active {
+      background: linear-gradient(90deg, var(--accent), var(--accent-hover));
+      color: #ffffff;
+      border-color: var(--accent);
+    }
+    .list-item .meta { font-size: 12px; color: var(--muted); }
+    .add-list { display: flex; gap: 8px; }
+    input, select, textarea, button {
+      font-family: inherit;
+      transition: all 0.2s ease;
+    }
+
+    /* Right: Board */
+    .right { display: flex; flex-direction: column; gap: 20px; }
+    .panel {
+      background: var(--panel);
+      padding: 20px;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      border: 1px solid #e2e8f0;
+    }
+
+    /* Task composer */
+    .composer { display: grid; grid-template-columns: 1fr 220px; gap: 12px; }
+    @media (max-width: 768px) { .composer { grid-template-columns: 1fr; } }
+    .composer input[type='text'] {
+      padding: 12px 16px;
+      border-radius: 8px;
+      border: 1px solid #d1d5db;
+      background: #ffffff;
+      color: inherit;
+      font-size: 16px;
+    }
+    .composer input[type='text']:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); }
+    .composer .meta-controls { display: flex; flex-direction: column; gap: 12px; }
+    .composer .meta-controls input, .composer .meta-controls select {
+      padding: 10px 12px;
+      border-radius: 8px;
+      border: 1px solid #d1d5db;
+      background: #ffffff;
+      color: inherit;
+      font-size: 14px;
+    }
+    .composer .meta-controls input:focus, .composer .meta-controls select:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+    .composer .actions { display: flex; gap: 8px; }
+    button.primary {
+      background: linear-gradient(90deg, var(--accent), var(--accent-hover));
+      border: none;
+      padding: 12px 16px;
+      border-radius: 8px;
+      color: #ffffff;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.2s ease;
+    }
+    button.primary:hover { transform: translateY(-2px); box-shadow: var(--shadow-hover); }
+    button { background: #f1f5f9; border: 1px solid #d1d5db; padding: 10px 12px; border-radius: 8px; cursor: pointer; }
+    button:hover { background: #e2e8f0; }
+
+    /* Task list */
+    .tasks { display: flex; flex-direction: column; gap: 12px; }
+    .task {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 12px;
+      align-items: center;
+      padding: 16px;
+      border-radius: 10px;
+      border: 1px solid #e2e8f0;
+      background: var(--card);
+      transition: all 0.2s ease;
+      box-shadow: var(--shadow);
+    }
+    .task:hover { box-shadow: var(--shadow-hover); transform: translateY(-2px); }
+    .task.dragging { opacity: 0.7; transform: scale(0.98); }
+    .checkbox {
+      width: 24px;
+      height: 24px;
+      border-radius: 6px;
+      border: 2px solid #d1d5db;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      background: #ffffff;
+    }
+    .checkbox:hover { border-color: var(--accent); }
+    .task.completed .checkbox { background: var(--success); border-color: var(--success); color: #ffffff; }
+    .task .title { font-weight: 600; font-size: 16px; }
+    .task .meta { font-size: 12px; color: var(--muted); margin-top: 4px; }
+    .task.completed { opacity: 0.7; text-decoration: line-through; }
+    .task .actions { display: flex; gap: 8px; align-items: center; }
+    .pill {
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 500;
+      border: 1px solid #e2e8f0;
+      background: #ffffff;
+    }
+    .pill.priority-low { background: #dcfce7; color: #166534; }
+    .pill.priority-medium { background: #fef3c7; color: #92400e; }
+    .pill.priority-high { background: #fee2e2; color: #991b1b; }
+    .pill.overdue { background: var(--danger); color: #ffffff; }
+
+    /* Footer controls */
+    .filters { display: flex; gap: 12px; align-items: center; }
+    .search {
+      padding: 10px 12px;
+      border-radius: 8px;
+      border: 1px solid #d1d5db;
+      background: #ffffff;
+      width: 200px;
+    }
+    .search:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); }
+
+    /* Small helpers */
+    .muted { color: var(--muted); }
+    .small { font-size: 12px; color: var(--muted); }
+    .spacer { height: 12px; }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+      .task { grid-template-columns: auto 1fr; }
+      .wrap { padding: 16px; }
+      header { flex-direction: column; gap: 16px; text-align: center; }
+      .brand { justify-content: center; }
+    }
+
+    /* Animations */
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    .task { animation: fadeIn 0.3s ease; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="brand">
+        <div class="logo"><i class="fas fa-tasks"></i></div>
+        <div>
+          <h1>SkillCraft To-Do App</h1>
+          <p class="lead">Organize tasks efficiently with lists, priorities, and due dates</p>
+        </div>
+      </div>
+      <div class="controls">
+        <button id="exportBtn" class="primary" title="Export lists & tasks as JSON"><i class="fas fa-download"></i> Export</button>
+        <input id="importFile" type="file" accept="application/json" style="display:none" />
+        <button id="importBtn"><i class="fas fa-upload"></i> Import</button>
+      </div>
+    </header>
+    <main class="app" role="main">
+      <section class="left" aria-label="Lists">
+        <div class="panel">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <strong><i class="fas fa-list"></i> Lists</strong>
+            <small class="muted">Manage your task lists</small>
+          </div>
+          <div class="spacer"></div>
+          <div class="lists" id="lists"></div>
+          <div class="spacer"></div>
+          <div class="add-list">
+            <input id="newListName" placeholder="New list name" />
+            <button id="addListBtn" class="primary"><i class="fas fa-plus"></i></button>
+          </div>
+        </div>
+
+        <div class="panel">
+          <strong><i class="fas fa-bolt"></i> Quick Actions</strong>
+          <div class="spacer"></div>
+          <button id="clearCompleted"><i class="fas fa-check-circle"></i> Clear Completed</button>
+          <div class="spacer"></div>
+          <button id="clearAll"><i class="fas fa-trash-alt"></i> Clear All Tasks</button>
+        </div>
+
+        <div class="panel small">
+          <div><strong><i class="fas fa-database"></i> Storage</strong></div>
+          <div class="small">Data is saved locally in your browser. Export/Import to sync across devices.</div>
+        </div>
+      </section>
+
+      <section class="right">
+        <div class="panel">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div>
+              <strong id="currentListTitle"><i class="fas fa-folder-open"></i> (No list)</strong>
+              <div class="small" id="currentListMeta">Select or create a list to get started</div>
+            </div>
+            <div class="filters">
+              <input id="search" class="search" placeholder="Search tasks..." />
+              <select id="filterStatus">
+                <option value="all">All</option>
+                <option value="active">Active</option>
+                <option value="completed">Completed</option>
+                <option value="overdue">Overdue</option>
+              </select>
+              <select id="sortBy">
+                <option value="custom">Custom Order</option>
+                <option value="dateAsc">Due Date ↑</option>
+                <option value="dateDesc">Due Date ↓</option>
+                <option value="priority">Priority</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="spacer"></div>
+
+          <form id="composer" class="composer" onsubmit="return false;" aria-label="Add new task">
+            <input id="taskTitle" type="text" placeholder="Enter task title..." required />
+            <div class="meta-controls">
+              <input id="taskDue" type="datetime-local" />
+              <select id="taskPriority">
+                <option value="low">Low Priority</option>
+                <option value="medium">Medium Priority</option>
+                <option value="high">High Priority</option>
+              </select>
+              <div class="actions">
+                <button id="addTaskBtn" class="primary"><i class="fas fa-plus"></i> Add Task</button>
+                <button id="clearComposer"><i class="fas fa-eraser"></i> Clear</button>
+              </div>
+            </div>
+          </form>
+        </div>
+
+        <div class="panel">
+          <div id="tasksContainer" class="tasks" aria-live="polite"></div>
+          <div class="spacer"></div>
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div class="small" id="tasksCount">0 tasks</div>
+            <div class="filters">
+              <button id="selectAll"><i class="fas fa-check-square"></i> Toggle All</button>
+              <button id="markAllCompleted"><i class="fas fa-check-double"></i> Mark All Done</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel small">
+          <strong><i class="fas fa-info-circle"></i> Tips</strong>
+          <ul>
+            <li>Double-click a task to edit it inline.</li>
+            <li>Drag and drop tasks to reorder them.</li>
+            <li>Set due dates for reminders and overdue alerts.</li>
+          </ul>
+          <div class="spacer"></div>
+          <button id="requestNotify" class="primary"><i class="fas fa-bell"></i> Enable Notifications</button>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    /* =====================
+       Professional To-Do App Script
+       - Enhanced UI with icons and animations
+       - Improved accessibility and responsiveness
+       - Full functionality maintained
+       ===================== */
+
+    (function(){
+      // ---------- Data model & persistence ----------
+      const STORAGE_KEY = 'skillcraft_todo_v2';
+
+      const state = {
+        lists: [],
+        activeListId: null,
+        filter: 'all',
+        search: '',
+        sortBy: 'custom'
+      };
+
+      const $ = sel => document.querySelector(sel);
+      const $$ = sel => Array.from(document.querySelectorAll(sel));
+      const uid = (prefix='id') => prefix + '_' + Math.random().toString(36).slice(2,9);
+
+      function save(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+      function load(){
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if(raw){
+          try{ Object.assign(state, JSON.parse(raw)); } catch(e){ console.error('Load error:', e); }
+        }
+      }
+
+      function ensureDefault(){
+        if(!state.lists.length){
+          const inboxId = uid('list');
+          state.lists = [{ id: inboxId, name: 'Inbox', tasks: [], createdAt: new Date().toISOString() }];
+          state.activeListId = inboxId;
+          save();
+        }
+      }
+
+      function getActiveList(){ return state.lists.find(l => l.id === state.activeListId) || null; }
+
+      // ---------- UI refs ----------
+      const listsEl = $('#lists');
+      const currentListTitle = $('#currentListTitle');
+      const currentListMeta = $('#currentListMeta');
+      const newListName = $('#newListName');
+      const addListBtn = $('#addListBtn');
+      const tasksContainer = $('#tasksContainer');
+      const taskTitle = $('#taskTitle');
+      const taskDue = $('#taskDue');
+      const taskPriority = $('#taskPriority');
+      const addTaskBtn = $('#addTaskBtn');
+      const clearComposer = $('#clearComposer');
+      const tasksCount = $('#tasksCount');
+      const filterStatus = $('#filterStatus');
